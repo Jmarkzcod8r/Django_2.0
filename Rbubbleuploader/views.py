@@ -7,6 +7,8 @@ import os
 import shutil
 from datetime import datetime
 from .models import * # Product, Section, Post
+import os
+from django.conf import settings
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -28,7 +30,9 @@ from tkinter import scrolledtext
 import threading
 from tkinter import filedialog
 import undetected_chromedriver as uc
-
+import selenium
+import json
+from .forms import *
 
 
 def tts_page(request):
@@ -340,11 +344,6 @@ def goUpload():
         #     else:
         #          path_pics_list[image_number]= Title
         #          break
-
-
-
-
-
 
         def save_entries_back():
 
@@ -783,9 +782,134 @@ def goUpload():
     root.mainloop()
 
 def index_page(request):
-    print("this is tts page")
+    # print("this is tts page")
     # sections = Section.objects.all()
-    goUpload()
+    # goUpload()
+    # kid = 0
+    photos = Photo.objects.all()
+    photoskid = Photo.objects.last()
+    photoget = Photo.objects.all().first()
+    print("this is photos ",photoskid)
+    # print("this is photos length: ",len(photos))
+    print("this is photoget: ",photoget)
+    if request.method == 'POST':
+        print(request.POST)
+        title = request.POST['title']
+        description = request.POST['description']
+        tag = request.POST['tag']
+        photo = request.FILES['photo']
+        directory = os.path.dirname(os.path.abspath(photo.name))
+        print("Photo: ",photo)
+        print("File directory:", directory)
+        photo = Photo(kid=datetime.timestamp(datetime.now()), title=title, description=description, tag=tag, photo=photo)
+        # photo = Photo(kid=len(photos) + 1, title=title, description=description, tag=tag, photo=photo)
+        photo.save()
+    photos = Photo.objects.all()
+        # return render(request, 'Uploader.html',{'photos':photos} )
+    # kid += 1
+    # photos.delete()
+    return render(request, 'Uploader.html',{'photos':photos} )
+
+def delete_post(request, id):
+    print("commencing delete_post with ", id)
+    delphoto= Photo.objects.get(pk=id)
+    # context = {'photos': photos}
+    os.remove(os.path.join(settings.MEDIA_ROOT, str(delphoto.photo)))
+
+    # if request.method == 'GET':
+    #     return render(request, 'blog/post_confirm_delete.html',context)
+    # if request.method == 'POST':
+    print("commencing delete_post ...POST method")
+    delphoto.delete()
+    photos = Photo.objects.all()
+        # messages.success(request,  'The post has been deleted successfully.')
+        # return redirect('posts')
+    return render(request, 'Uploader.html',{'photos':photos} )
+
+def delete_all(request):
+    photos = Photo.objects.all()
+    for photo in photos:
+        os.remove(os.path.join(settings.MEDIA_ROOT, str(photo.photo)))
+    photos.delete()
+    return render(request, 'Uploader.html',{'photos':photos} )
+
+def edit_item(request, id):
+    photo = Photo.objects.get( pk=id)
+
+    if request.method == 'POST':
+        photo.title = request.POST['title']
+        photo.description = request.POST['description']
+        photo.tag = request.POST['tag']
+        photo.save()
+        return redirect('uploader')
+
+    return render(request, 'edit_item.html', {'photo': photo})
+
+def Publish (request):
+    photos = Photo.objects.all()
+    print(os.getcwd())
+    for photo in photos:
+        print("------------------------------ ")
+        print("this is photos_title ", photo.title)
+        print("this is photos_tag ", photo.tag)
+        print("this is photos_description ", photo.description)
+        print("this is photos_url ", photo.photo.url)
+
+    options = uc.ChromeOptions()
+    # options.headless = True
+    driver = uc.Chrome(use_subprocess=True, options=options, version_main=108,executable_path=ChromeDriverManager().install())
+    # options = selenium.webdriver.ChromeOptions()
+    #options.add_argument('--headless')
+    #could also do options.headless = True
+    # options.add_argument('--window-size=1920x1080')
+    # driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    driver.get("https://www.redbubble.com/auth/login")
+
+    def send_randomized_tags():
+
+            tag_text = driver.find_element(By.XPATH, '//*[@id="work_tag_field_en"]')
+            tag_text.send_keys(os.getcwd() + photo[0].tag)
+            # tag_text.clear()
+            # tag_text.send_keys(list_shuffled_tags[z] + ", " +name_of_work)
+    con = input("continue?")
+    # send_randomized_tags()
+    driver.get("https://www.redbubble.com/portfolio/images/new?ref=account-nav-dropdown")
+
+    def send_image():
+        try:
+            # replace_image = driver.find_element(By.XPATH, '//*[@id="select-image-base"]')
+            replace_image = driver.find_element(By.XPATH, '//*[@id="select-image-single"]')
+            replace_image.send_keys(os.getcwd() +photos[0].photo.url)
+        except Exception as e:
+            print('Image element not found, retrying in 7 seconds...')
+            time.sleep(7)
+            send_image()
+    send_image()
 
 
-    return render(request, 'Uploader.html')
+
+    return render(request, 'Uploader.html',{'photos':photos} )
+# def hotel_image_view(request):
+
+#     if request.method == 'POST':
+#         form = HotelForm(request.POST, request.FILES)
+
+#         if form.is_valid():
+#             form.save()
+#             return redirect('success')
+#     else:
+#         form = HotelForm()
+#     return render(request, 'hotel_image_form.html', {'form': form})
+
+
+# def success(request):
+#     return HttpResponse('successfully uploaded')
+
+# def display_hotel_images(request):
+
+#     if request.method == 'GET':
+
+#         # getting all the objects of hotel.
+#         Hotels = Hotel.objects.all()
+#         return render((request, 'display_hotel_images.html',
+#                        {'hotel_images': Hotels}))

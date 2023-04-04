@@ -4,9 +4,301 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Photo Uploader</title>
+    <style>
+
+
+
+    </style>
 </head>
-<body>
-    <h1>This is uploader.html</h1>
-</body>
+<!-- <body onbeforeunload="return askleave()"> -->
+    <body>
+    <style>
+        p{
+            margin: 0;
+        }
+        img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+    <h3>Photo Uploader</h3>
+    <form action="{% url 'uploader' %}" method="post" enctype="multipart/form-data" >
+        {% csrf_token %}
+        <div style="display: flex ">
+            <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" value="title"><br><br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" cols="50">Description</textarea><br><br>
+        <label for="tags">Tags:</label>
+        <input type="text" id="tags" name="tag" value="tag"><br><br>
+    </div>
+        <input id = 'get' type='file' onchange="readURL(this);" name="photo" />
+
+        <img id="blah" src="http://placehold.it/180" alt="your image" />
+        <button type="button" id="apply-btn" style="display:none;" onclick="applyChanges()">Apply Changes</button>
+        <button type="button" id="con" onclick="f()">Console</button>
+
+        <div class="col-auto">
+            <a > <input type="submit" class="btn btn-success" value="Upload">Upload to database</a>
+            <!-- <a > <input type="submit" class="btn btn-success" value="Upload">Upload to database</a> -->
+
+          </div>
+
+        </div>
+    </form>
+
+    <hr>
+    <div>
+        <!-- <h2>Uploaded Photos</h2>
+        <button type="button" id="con" onclick="send_linklist()">Send Linked list</button>
+        <button type="button" onclick="prevNode()">Previous</button>
+        <button type="button" onclick="nextNode()">Next</button>
+        <br><br>
+        <label for="title-display">Title:</label>
+        <span id="title-display"></span><br><br>
+        <label for="description-display">Description:</label>
+        <span id="description-display"></span><br><br>
+        <label for="tags-display">Tags:</label>
+        <span id="tags-display"></span><br><br>
+        <img id="photo-display" src="http://placehold.it/400x400" alt="your image" /><br><br>
+        <button type="button" onclick="editNode()">Edit</button>
+        <button type="button" id="apply-btn" onclick="applyChanges()" style="display: none;">Apply Changes</button> -->
+
+        <!-- <div class="photo-viewer-container">
+            <img src="{{ photo_list.head.data.photo.url }}" alt="{{ photo_list.head.data.title }}" class="photo-viewer-image">
+            <div class="photo-viewer-buttons">
+                <button id="prev-button">Prev</button>
+                <button id="next-button">Next</button>
+            </div>
+        </div> -->
+        <button style="background-color: rgb(223, 203, 24);">
+            <a href="{% url 'delete-all' %}">Delete All</a>
+            </button>
+            <button style="background-color: rgb(223, 203, 24);">
+                <a href="{% url 'Publish' %}">Upload to Red bubble</a>
+                </button>
+
+        <div style="flex-direction: row; display: flex; width:full ; overflow: scroll;">
+        <!-- {% for photo in photos %}
+    <div class="photo" style="margin: 2px">
+        <h4>{{ photo.title }}</h4>
+        <input type="text" id="tags" name="{{ photo.title }}" value="{{ photo.title }}">
+        <p>{{ photo.description }}</p>
+        <p>{{ photo.tag }}</p>
+        <p>{{ photo.photo.url }}</p>
+        <p>This is photo id</p>
+        <p>{{ photo.kid }}</p>
+        <img src="{{ photo.photo.url }}" alt="{{ photo.title }}">
+
+        <a href="{% url 'delete-item' photo.id %}">Delete Item</a>
+
+
+    </div>
+{% endfor %} -->
+{% for photo in photos %}
+    <div class="photo" style="margin: 2px; display: flex; flex-direction: column;">
+        <h4>Title: {{ photo.title }}</h4>
+        <!-- <input type="text" id="tags" name="{{ photo.title }}" value="{{ photo.title }}"> -->
+        <p>{{ photo.description }}</p>
+        <!-- <input type="text" id="description" name="{{ photo.description }}" value="{{ photo.description }}"> -->
+        <p>{{ photo.tag }}</p>
+        <!-- <input type="text" id="tag" name="{{ photo.tag }}" value="{{ photo.tag }}"> -->
+        <p>{{ photo.photo.url }}</p>
+        <p>This is photo id</p>
+        <p>{{ photo.kid }}</p>
+        <img src="{{ photo.photo.url }}" alt="{{ photo.title }}">
+
+        <a href="{% url 'delete-item' photo.id %}">Delete Item</a>
+
+        <!-- Edit button and form -->
+        <!-- <button type="button" class="edit-button">Edit</button> -->
+        <form action="{% url 'edit-item' photo.id %}" method="post" class="edit-form" style="display:flex; flex-direction: column; margin:10px">
+            {% csrf_token %}
+            <label for="edit-title">Title:</label>
+            <input type="text" id="edit-title" name="title" value="{{ photo.title }}">
+            <label for="edit-description">Description:</label>
+            <input type="text" id="edit-description" name="description" value="{{ photo.description }}">
+            <label for="edit-tag">Tag:</label>
+            <input type="text" id="edit-tag" name="tag" value="{{ photo.tag }}">
+            <button type="submit">Save</button>
+        </form>
+
+    </div>
+{% endfor %}
+
+</div>
+
+
+    </div>
+    <script>
+
+
+// window.onload = function() {
+
+//             var head = JSON.parse(localStorage.getItem("head"));
+//             var curr = JSON.parse(localStorage.getItem("curr")) ;
+//             if (storedHead && storedCurr) {
+//                 head = JSON.parse(storedHead);
+//                 curr = JSON.parse(storedCurr);
+
+//                 displayNode();
+//             }
+
+//         };
+
+        var head = null;
+        var curr = null;
+
+        function f() {
+                    console.log("this is head" ,head);
+                    console.log("this is curr" ,curr);
+                }
+
+        function addNode() {
+            var title = document.getElementById("title").value;
+            var description = document.getElementById("description").value;
+            var tags = document.getElementById("tags").value;
+            var photo = document.getElementById("get").files[0];
+
+            if (photo) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var node = {
+                        title: title,
+                        description: description,
+                        tags: tags,
+                        photo: e.target.result,
+                        prev: null,
+                        next: null
+                    };
+                    if (head === null) {
+                        head = node;
+                        curr = node;
+                    } else {
+                        // head.next = curr;
+                        node.prev = curr;
+                        curr.next = node;
+                        curr = node;
+                    }
+                    displayNode();
+                    localStorage.setItem("head", JSON.stringify(head));
+                    localStorage.setItem("list", JSON.stringify(head));
+                    localStorage.setItem("curr", JSON.stringify(curr));
+        };
+                reader.readAsDataURL(photo);
+            }
+        }
+
+
+        function displayNode() {
+            document.getElementById("title-display").innerHTML = curr.title;
+            document.getElementById("description-display").innerHTML = curr.description;
+            document.getElementById("tags-display").innerHTML = curr.tags;
+            document.getElementById("photo-display").src = curr.photo;
+}
+
+function prevNode() {
+        if (curr !== null && curr.prev !== null) {
+            curr = curr.prev;
+            displayNode();
+        }
+    }
+
+    function nextNode() {
+        if (curr !== null && curr.next !== null) {
+            curr = curr.next;
+            displayNode();
+        }
+    }
+//     function prevNode() {
+//     if (curr && head !== curr) {
+//         var node = head;
+//         while (node.next !== curr) {
+//         node = node.next;
+//         }
+//         curr = node;
+//         displayNode();
+//     }
+//     }
+
+//     function nextNode() {
+//     if (curr && curr.next !== null) {
+//         curr = curr.next;
+//         displayNode();
+//     }
+// }
+
+
+    function editNode() {
+        document.getElementById("title").value = curr.title;
+        document.getElementById("description").value = curr.description;
+        document.getElementById("tags").value = curr.tags;
+        document.getElementById("apply-btn").style.display = "inline";
+    }
+
+    function applyChanges() {
+        curr.title = document.getElementById("title").value;
+        curr.description = document.getElementById("description").value;
+        curr.tags = document.getElementById("tags").value;
+        document.getElementById("apply-btn").style.display = "none";
+        displayNode();
+    }
+
+    function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    document.getElementById('blah')
+                        .setAttribute('src', e.target.result);
+                    addNode(document.getElementById("title").value,
+                            document.getElementById("description").value,
+document.getElementById("tags").value,
+e.target.result);
+};  reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function askleave() {
+        return "Are you sure?"
+    }
+
+//     window.addEventListener("beforeunload", function(event) {
+//   event.returnValue = "Write something clever here..";
+// });
+    function send_linklist() {
+        // var sample = 'sample string';
+        console.log("this is head...", JSON.stringify({head}))
+    //     var linkedListData = JSON.stringify({head});
+
+    // // Make an AJAX POST request to the Django view
+    // var xhr = new XMLHttpRequest();
+    // xhr.open("POST", "");
+    // xhr.setRequestHeader("Content-Type", "application/json");
+    // xhr.send(linkedListData);
+    }
+
+    // get the file input element and the submit button
+const fileInput = document.getElementById('get');
+const submitButton = document.querySelector('.btn-success');
+
+// add an event listener to the submit button
+// submitButton.addEventListener('click', () => {
+//   // reset the file input element
+//   fileInput.value = '';
+// });
+
+// const editButtons = document.querySelectorAll('.edit-button');
+//     editButtons.forEach(button => {
+//         button.addEventListener('click', () => {
+//             const form = button.nextElementSibling;
+//             form.style.display = 'block';
+//         });
+//     });
+
+</script></body>
 </html>
+
+
