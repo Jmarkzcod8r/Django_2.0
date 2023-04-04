@@ -25,6 +25,7 @@ urlpatterns = [
     path('edit-item/<int:id>/', views.edit_item, name='edit-item'),
 
     path('Publish', views.Publish, name='Publish'),
+    path('Sampleselenium', views.Sample_selenium, name='Sample-selenium'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

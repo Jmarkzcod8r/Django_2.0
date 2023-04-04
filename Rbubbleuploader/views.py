@@ -889,6 +889,23 @@ def Publish (request):
 
 
     return render(request, 'Uploader.html',{'photos':photos} )
+
+def Sample_selenium(request):
+    photos = Photo.objects.all()
+
+    chrome_options = webdriver.ChromeOptions()
+    # chrome_options.add_argument("--no-sandbox")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-gpu")
+    browser = webdriver.Chrome(options=chrome_options)
+    # try:
+    browser.get("https://www.google.com")
+    con = input('h?')
+        # print("Page title was '{}'".format(browser.title))
+    # finally:
+    #     browser.quit()
+
+    return render(request, 'Uploader.html',{'photos':photos} )
 # def hotel_image_view(request):
 
 #     if request.method == 'POST':
