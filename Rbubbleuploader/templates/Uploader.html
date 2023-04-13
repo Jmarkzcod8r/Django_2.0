@@ -12,7 +12,7 @@
     </style>
 </head>
 <!-- <body onbeforeunload="return askleave()"> -->
-    <body>
+    <body  style="text-align: center; justify-content: center;">
     <style>
         p{
             margin: 0;
@@ -22,32 +22,50 @@
             max-height: 200px;
         }
     </style>
-    <h3>Photo Uploader</h3>
-    <form action="{% url 'uploader' %}" method="post" enctype="multipart/form-data" >
+    <h3 >Photo Uploader</h3>
+
+    <div style="display: flex;/*  background-color: red;  */justify-content: space-around; height: auto">
+
+   <form style="display: flex; flex-direction: row;/*  background-color: aqua; */" className="" action="{% url 'uploader' %}" method="post" enctype="multipart/form-data" >
         {% csrf_token %}
-        <div style="display: flex ">
-            <div>
+        <div style="display: flex ; flex-direction: column ; width: 20rem">
+
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" value="title"><br><br>
         <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" cols="50">Description</textarea><br><br>
+        <textarea id="description" name="description" rows="9" cols="50">Description</textarea><br><br>
         <label for="tags">Tags:</label>
         <input type="text" id="tags" name="tag" value="tag"><br><br>
     </div>
+    <div style="display: flex ; flex-direction: column;/*  background-color: green;  */width:12.5rem ; margin-inline: 10px;">
         <input id = 'get' type='file' onchange="readURL(this);" name="photo" />
 
-        <img id="blah" src="http://placehold.it/180" alt="your image" />
-        <button type="button" id="apply-btn" style="display:none;" onclick="applyChanges()">Apply Changes</button>
-        <button type="button" id="con" onclick="f()">Console</button>
+        <img id="blah" src="http://placehold.it/180" alt="your image" style="width: 35rem; height: 20rem;"/>
+        <button type="button" id="apply-btn" style="display:none " onclick="applyChanges()">Apply Changes</button>
+        <!-- <button type="button" id="con" onclick="f()">Console</button> -->
 
-        <div class="col-auto">
-            <a > <input type="submit" class="btn btn-success" value="Upload">Upload to database</a>
+        <div class="col-auto" style="display: flex; justify-content: center;">
+            <a > <input style="width:10em" id="inputphoto" type="submit" class="btn btn-success" value="Upload to database"></a>
             <!-- <a > <input type="submit" class="btn btn-success" value="Upload">Upload to database</a> -->
 
           </div>
+        </div>
+        <div style="/* background-color: pink; */">
+            {% for photo in photos %}
+    <!-- <div class="photo" style="margin: 2px; display: inline-block; "> -->
+
+        <img  style="margin: 2px; display: inline-block; width: 50px; height:50px " src="{{ photo.photo.url }}" alt="{{ photo.title }}">
+
+
+
+    <!-- </div> -->
+{% endfor %}
 
         </div>
+        </div>
+
     </form>
+</div>
 
     <hr>
     <div>
@@ -76,12 +94,12 @@
         <button style="background-color: rgb(223, 203, 24);">
             <a href="{% url 'delete-all' %}">Delete All</a>
             </button>
-            <button style="background-color: rgb(223, 203, 24);">
+            <!-- <button style="background-color: rgb(223, 203, 24);">
                 <a href="{% url 'Publish' %}">Upload to Red bubble</a>
                 </button>
         <button style="background-color: rgb(223, 203, 24);">
             <a href="{% url 'Sample-selenium' %}">Sample Selenium</a>
-        </button>
+        </button> -->
 
         <div style="flex-direction: row; display: flex; width:full ; overflow: scroll;">
         <!-- {% for photo in photos %}
@@ -108,7 +126,7 @@
         <!-- <input type="text" id="description" name="{{ photo.description }}" value="{{ photo.description }}"> -->
         <p>{{ photo.tag }}</p>
         <!-- <input type="text" id="tag" name="{{ photo.tag }}" value="{{ photo.tag }}"> -->
-        <p>{{ photo.photo.url }}</p>
+        <!-- <p>{{ photo.photo.url }}</p> -->
         <p>This is photo id</p>
         <p>{{ photo.kid }}</p>
         <img src="{{ photo.photo.url }}" alt="{{ photo.title }}">
@@ -124,7 +142,7 @@
             <label for="edit-description">Description:</label>
             <input type="text" id="edit-description" name="description" value="{{ photo.description }}">
             <label for="edit-tag">Tag:</label>
-            <input type="text" id="edit-tag" name="tag" value="{{ photo.tag }}">
+            <input type="text" id="edit-tag" name="tag" value="{{ photo.tag }}" onclick="resetFields()">
             <button type="submit">Save</button>
         </form>
 
@@ -268,9 +286,9 @@ e.target.result);
         return "Are you sure?"
     }
 
-//     window.addEventListener("beforeunload", function(event) {
-//   event.returnValue = "Write something clever here..";
-// });
+    window.addEventListener("beforeunload", function(event) {
+  event.returnValue = "Write something clever here..";
+});
     function send_linklist() {
         // var sample = 'sample string';
         console.log("this is head...", JSON.stringify({head}))
@@ -287,19 +305,12 @@ e.target.result);
 const fileInput = document.getElementById('get');
 const submitButton = document.querySelector('.btn-success');
 
-// add an event listener to the submit button
-// submitButton.addEventListener('click', () => {
-//   // reset the file input element
-//   fileInput.value = '';
-// });
-
-// const editButtons = document.querySelectorAll('.edit-button');
-//     editButtons.forEach(button => {
-//         button.addEventListener('click', () => {
-//             const form = button.nextElementSibling;
-//             form.style.display = 'block';
-//         });
-//     });
+function resetFields() {
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("tags").value = "";
+        document.getElementById("inputphoto").value = "";
+    }
 
 </script></body>
 </html>
